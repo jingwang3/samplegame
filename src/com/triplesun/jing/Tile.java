@@ -14,17 +14,20 @@ import com.jing.framework.Image;
 public class Tile {
 
     private int tileX, tileY, speedX;
+    private int tileWidth = 40;
+    private int tileHeight = 40;
     public int type;
     public Image tileImage;
 
     private Robot robot = GameScreen.getRobot();
     private Background bg = GameScreen.getBg1();
+    
 
     private Rect r;
 
     public Tile(int x, int y, int typeInt) {
-        tileX = x * 40;
-        tileY = y * 40;
+        tileX = x * tileWidth;
+        tileY = y * tileHeight;
 
         type = typeInt;
 
@@ -51,7 +54,7 @@ public class Tile {
         public void update() {
             speedX = bg.getSpeedX() * 5;
             tileX += speedX;
-            r.set(tileX, tileY, tileX+40, tileY+40);
+            r.set(tileX, tileY, tileX+tileWidth, tileY+tileHeight);
     
             
             
@@ -123,5 +126,15 @@ public class Tile {
             }
         }
     }
+
+	public int getTileWidth() {
+		// TODO Auto-generated method stub
+		return tileWidth;
+	}
+
+	public int getTileHeight() {
+		// TODO Auto-generated method stub
+		return tileHeight;
+	}
 
 }

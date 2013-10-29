@@ -37,7 +37,7 @@ public class GameScreen extends Screen {
 			heliboy2, heliboy3, heliboy4, heliboy5;
 	private Animation anim, hanim;
 
-	private ArrayList tilearray = new ArrayList();
+	private ArrayList<Tile> tilearray = new ArrayList<Tile>();
 
 	int livesLeft = 1;
 	Paint paint, paint2;
@@ -99,9 +99,9 @@ public class GameScreen extends Screen {
 	}
 
 	private void loadMap() {
-		ArrayList lines = new ArrayList();
+		ArrayList<String> lines = new ArrayList<String>();
 		int width = 0;
-		int height = 0;
+		int height = 12;
 
 		Scanner scanner = new Scanner(SampleGame.map);
 		while (scanner.hasNextLine()) {
@@ -120,7 +120,7 @@ public class GameScreen extends Screen {
 		}
 		height = lines.size();
 
-		for (int j = 0; j < 12; j++) {
+		for (int j = 0; j < height; j++) {
 			String line = (String) lines.get(j);
 			for (int i = 0; i < width; i++) {
 
@@ -137,7 +137,7 @@ public class GameScreen extends Screen {
 
 	@Override
 	public void update(float deltaTime) {
-		List touchEvents = game.getInput().getTouchEvents();
+		List<?> touchEvents = game.getInput().getTouchEvents();
 
 		// We have four separate update methods in this example.
 		// Depending on the state of the game, we call different update methods.
@@ -154,7 +154,7 @@ public class GameScreen extends Screen {
 			updateGameOver(touchEvents);
 	}
 
-	private void updateReady(List touchEvents) {
+	private void updateReady(List<?> touchEvents) {
 
 		// This example starts with a "Ready" screen.
 		// When the user touches the screen, the game begins.
@@ -165,7 +165,7 @@ public class GameScreen extends Screen {
 			state = GameState.Running;
 	}
 
-	private void updateRunning(List touchEvents, float deltaTime) {
+	private void updateRunning(List<?> touchEvents, float deltaTime) {
 
 		// This is identical to the update() method from our Unit 2/3 game.
 
@@ -197,12 +197,12 @@ public class GameScreen extends Screen {
 
 				}
 
-				if (event.x > 400) {
+				/*if (event.x > 400) {
 					// Move right.
 					robot.moveRight();
 					robot.setMovingRight(true);
 
-				}
+				}*/
 
 			}
 
@@ -218,11 +218,18 @@ public class GameScreen extends Screen {
 					pause();
 
 				}
-
-				if (event.x > 400) {
+				
+				
+				for (int j = 0; j < tilearray.size(); j++) {												
+					if (inBounds(event, tilearray.get(j).getTileX(), tilearray.get(j).getTileY(), tilearray.get(j).getTileWidth(), tilearray.get(j).getTileHeight())) {		
+						tilearray.get(j).setTileImage(null);
+					}
+				}
+				
+				/*if (event.x > 400) {
 					// Move right.
 					robot.stopRight();
-				}
+				}*/
 			}
 
 		}
@@ -243,7 +250,7 @@ public class GameScreen extends Screen {
 			currentSprite = anim.getImage();
 		}
 
-		ArrayList projectiles = robot.getProjectiles();
+		ArrayList<?> projectiles = robot.getProjectiles();
 		for (int i = 0; i < projectiles.size(); i++) {
 			Projectile p = (Projectile) projectiles.get(i);
 			if (p.isVisible() == true) {
@@ -274,7 +281,7 @@ public class GameScreen extends Screen {
 			return false;
 	}
 
-	private void updatePaused(List touchEvents) {
+	private void updatePaused(List<?> touchEvents) {
 		int len = touchEvents.size();
 		for (int i = 0; i < len; i++) {
 			TouchEvent event = (TouchEvent) touchEvents.get(i);
@@ -294,7 +301,7 @@ public class GameScreen extends Screen {
 		}
 	}
 
-	private void updateGameOver(List touchEvents) {
+	private void updateGameOver(List<?> touchEvents) {
 		int len = touchEvents.size();
 		for (int i = 0; i < len; i++) {
 			TouchEvent event = (TouchEvent) touchEvents.get(i);
@@ -326,7 +333,7 @@ public class GameScreen extends Screen {
 		g.drawImage(Assets.background, bg2.getBgX(), bg2.getBgY());
 		paintTiles(g);
 
-		ArrayList projectiles = robot.getProjectiles();
+		ArrayList<?> projectiles = robot.getProjectiles();
 		for (int i = 0; i < projectiles.size(); i++) {
 			Projectile p = (Projectile) projectiles.get(i);
 			g.drawRect(p.getX(), p.getY(), 10, 5, Color.YELLOW);
@@ -360,6 +367,7 @@ public class GameScreen extends Screen {
 		for (int i = 0; i < tilearray.size(); i++) {
 			Tile t = (Tile) tilearray.get(i);
 			if (t.type != 0) {
+				if(t.getTileImage() != null)
 				g.drawImage(t.getTileImage(), t.getTileX(), t.getTileY());
 			}
 		}
