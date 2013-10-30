@@ -28,8 +28,13 @@ public class Tile {
     public Tile(int x, int y, int typeInt) {
         tileX = x * tileWidth;
         tileY = y * tileHeight;
-
-        type = typeInt;
+        
+        if(typeInt != Character.getNumericValue('r')){
+        	type = typeInt;
+        }else{
+        	type = (int) (Math.random() * 10);
+        }
+        
 
         r = new Rect();
 

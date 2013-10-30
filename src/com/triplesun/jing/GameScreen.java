@@ -268,7 +268,7 @@ public class GameScreen extends Screen {
 		animate();
 
 		if (robot.getCenterY() > 500) {
-			state = GameState.GameOver;
+			//state = GameState.GameOver;
 		}
 	}
 
