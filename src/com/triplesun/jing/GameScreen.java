@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.graphics.Color;
 import android.graphics.Paint;
 
@@ -38,7 +41,7 @@ public class GameScreen extends Screen {
 	private Animation anim, hanim;
 
 	private ArrayList<Tile> tilearray = new ArrayList<Tile>();
-
+	public static JSONObject json;
 	int livesLeft = 1;
 	Paint paint, paint2;
 
@@ -131,6 +134,13 @@ public class GameScreen extends Screen {
 				}
 
 			}
+		}
+		try {
+			json = new JSONObject(SampleGame.map);
+			System.out.println(json.getJSONArray("layers").getJSONObject(1).getJSONArray("data").get(1));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 	}

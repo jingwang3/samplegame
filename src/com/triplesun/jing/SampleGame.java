@@ -33,7 +33,6 @@ public class SampleGame extends AndroidGame {
 
 		InputStream is = getResources().openRawResource(R.raw.world);
 		map = convertStreamToString(is);
-
 		return new SplashLoadingScreen(this);
 
 	}
