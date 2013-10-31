@@ -35,9 +35,9 @@ public class LoadingScreen extends Screen {
         Assets.heliboy3  = g.newImage("heliboy3.png", ImageFormat.ARGB4444);
         Assets.heliboy4  = g.newImage("heliboy4.png", ImageFormat.ARGB4444);
         Assets.heliboy5  = g.newImage("heliboy5.png", ImageFormat.ARGB4444);
-
-
         
+        Assets.tileSet = g.newImage("worldTileSet.png", ImageFormat.RGB565);
+
         Assets.tiledirt = g.newImage("tiledirt.png", ImageFormat.RGB565);
         Assets.tilegrassTop = g.newImage("tilegrasstop.png", ImageFormat.RGB565);
         Assets.tilegrassBot = g.newImage("tilegrassbot.png", ImageFormat.RGB565);

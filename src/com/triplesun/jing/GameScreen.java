@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 
 import com.jing.framework.Game;
 import com.jing.framework.Graphics;
@@ -21,7 +22,7 @@ import com.jing.framework.Screen;
 
 /**
  * @author jwang523
- *
+ * 
  */
 public class GameScreen extends Screen {
 	enum GameState {
@@ -102,42 +103,23 @@ public class GameScreen extends Screen {
 	}
 
 	private void loadMap() {
-		ArrayList<String> lines = new ArrayList<String>();
-		int width = 0;
-		int height = 12;
-
-		Scanner scanner = new Scanner(SampleGame.map);
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-
-			// no more lines to read
-			if (line == null) {
-				break;
-			}
-
-			if (!line.startsWith("!")) {
-				lines.add(line);
-				width = Math.max(width, line.length());
-
-			}
-		}
-		height = lines.size();
-
-		for (int j = 0; j < height; j++) {
-			String line = (String) lines.get(j);
-			for (int i = 0; i < width; i++) {
-
-				if (i < line.length()) {
-					char ch = line.charAt(i);
-					Tile t = new Tile(i, j, Character.getNumericValue(ch));
-					tilearray.add(t);
-				}
-
-			}
-		}
+		//ArrayList<String> lines = new ArrayList<String>();
 		try {
 			json = new JSONObject(SampleGame.map);
-			System.out.println(json.getJSONArray("layers").getJSONObject(1).getJSONArray("data").get(1));
+			int width = json.getInt("width");
+			int height = json.getInt("height");
+
+			for (int j = 0; j < height; j++) {
+				for (int i = 0; i < width; i++) {
+					Tile t = new Tile(i, j, json.getJSONArray("layers")
+							.getJSONObject(0).getJSONArray("data")
+							.getInt(j * width + i), json.getInt("tilewidth"),
+							json.getInt("tileheight"));
+					tilearray.add(t);
+				}
+			}
+
+			System.out.println(tilearray.get(0).getTileSrcX());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -207,12 +189,12 @@ public class GameScreen extends Screen {
 
 				}
 
-				/*if (event.x > 400) {
-					// Move right.
-					robot.moveRight();
-					robot.setMovingRight(true);
-
-				}*/
+				/*
+				 * if (event.x > 400) { // Move right. robot.moveRight();
+				 * robot.setMovingRight(true);
+				 * 
+				 * }
+				 */
 
 			}
 
@@ -228,18 +210,19 @@ public class GameScreen extends Screen {
 					pause();
 
 				}
-				
-				
-				for (int j = 0; j < tilearray.size(); j++) {												
-					if (inBounds(event, tilearray.get(j).getTileX(), tilearray.get(j).getTileY(), tilearray.get(j).getTileWidth(), tilearray.get(j).getTileHeight())) {		
-						tilearray.get(j).setTileImage(null);
+
+				for (int j = 0; j < tilearray.size(); j++) {
+					if (inBounds(event, tilearray.get(j).getTileX(), tilearray
+							.get(j).getTileY(),
+							tilearray.get(j).getTileWidth(), tilearray.get(j)
+									.getTileHeight())) {
+						tilearray.get(j).setTileDisplay(false);
 					}
 				}
-				
-				/*if (event.x > 400) {
-					// Move right.
-					robot.stopRight();
-				}*/
+
+				/*
+				 * if (event.x > 400) { // Move right. robot.stopRight(); }
+				 */
 			}
 
 		}
@@ -278,7 +261,7 @@ public class GameScreen extends Screen {
 		animate();
 
 		if (robot.getCenterY() > 500) {
-			//state = GameState.GameOver;
+			// state = GameState.GameOver;
 		}
 	}
 
@@ -349,7 +332,7 @@ public class GameScreen extends Screen {
 			g.drawRect(p.getX(), p.getY(), 10, 5, Color.YELLOW);
 		}
 		// First draw the game elements.
-
+		
 		g.drawImage(currentSprite, robot.getCenterX() - 61,
 				robot.getCenterY() - 63);
 		g.drawImage(hanim.getImage(), hb.getCenterX() - 48,
@@ -376,11 +359,12 @@ public class GameScreen extends Screen {
 	private void paintTiles(Graphics g) {
 		for (int i = 0; i < tilearray.size(); i++) {
 			Tile t = (Tile) tilearray.get(i);
-			if (t.type != 0) {
-				if(t.getTileImage() != null)
-				g.drawImage(t.getTileImage(), t.getTileX(), t.getTileY());
+			if (t.getTileDisplay()) {
+			g.drawImage(Assets.tileSet, t.getTileX(), t.getTileY(),
+					t.getTileSrcX(), t.getTileSrcY(), t.getTileWidth(), t.getTileHeight());
 			}
 		}
+		// g.drawImage(Assets.tileSet, 0, 0);
 	}
 
 	public void animate() {
