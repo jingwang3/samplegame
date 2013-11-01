@@ -12,7 +12,11 @@ import org.json.JSONObject;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.view.WindowManager;
 
 import com.jing.framework.Game;
 import com.jing.framework.Graphics;
@@ -35,13 +39,13 @@ public class GameScreen extends Screen {
 
 	private static Background bg1, bg2;
 	private static Robot robot;
+	private static int touchDownX, touchDownY;
+	public static TileMap worldTileMap;
 	public static Heliboy hb, hb2;
 
 	private Image currentSprite, character, character2, character3, heliboy,
 			heliboy2, heliboy3, heliboy4, heliboy5;
 	private Animation anim, hanim;
-
-	private ArrayList<Tile> tilearray = new ArrayList<Tile>();
 	public static JSONObject json;
 	int livesLeft = 1;
 	Paint paint, paint2;
@@ -50,7 +54,6 @@ public class GameScreen extends Screen {
 		super(game);
 
 		// Initialize game objects here
-
 		bg1 = new Background(0, 0);
 		bg2 = new Background(2160, 0);
 		robot = new Robot();
@@ -106,20 +109,8 @@ public class GameScreen extends Screen {
 		//ArrayList<String> lines = new ArrayList<String>();
 		try {
 			json = new JSONObject(SampleGame.map);
-			int width = json.getInt("width");
-			int height = json.getInt("height");
-
-			for (int j = 0; j < height; j++) {
-				for (int i = 0; i < width; i++) {
-					Tile t = new Tile(i, j, json.getJSONArray("layers")
-							.getJSONObject(0).getJSONArray("data")
-							.getInt(j * width + i), json.getInt("tilewidth"),
-							json.getInt("tileheight"));
-					tilearray.add(t);
-				}
-			}
-
-			System.out.println(tilearray.get(0).getTileSrcX());
+			worldTileMap = new TileMap(json);
+			//System.out.println(worldTileMap.getTileArray().get(0).getTileSrcX());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -157,6 +148,7 @@ public class GameScreen extends Screen {
 			state = GameState.Running;
 	}
 
+	@SuppressWarnings("deprecation")
 	private void updateRunning(List<?> touchEvents, float deltaTime) {
 
 		// This is identical to the update() method from our Unit 2/3 game.
@@ -166,6 +158,8 @@ public class GameScreen extends Screen {
 		for (int i = 0; i < len; i++) {
 			TouchEvent event = (TouchEvent) touchEvents.get(i);
 			if (event.type == TouchEvent.TOUCH_DOWN) {
+				touchDownX = event.x;
+				touchDownY = event.y;
 
 				if (inBounds(event, 0, 285, 65, 65)) {
 					robot.jump();
@@ -197,7 +191,23 @@ public class GameScreen extends Screen {
 				 */
 
 			}
-
+			
+			if (event.type == TouchEvent.TOUCH_DRAGGED){
+				//System.out.println(event.x + event.y);
+				/*if(worldTileMap.getPosX()>0){
+					worldTileMap.moveMapTo(-1, worldTileMap.getPosY());
+				}else if((worldTileMap.getPosX()+worldTileMap.getMapWidth()) < 800){
+					worldTileMap.moveMapTo(-worldTileMap.getMapWidth() + 800 +1, worldTileMap.getPosY());
+				}
+				if(worldTileMap.getPosY()>0){
+					worldTileMap.moveMapTo(-1, worldTileMap.getPosY());
+				}*/
+				
+				worldTileMap.moveMap(event.x - touchDownX, event.y - touchDownY);
+				touchDownX = event.x;
+				touchDownY = event.y;
+			}
+			
 			if (event.type == TouchEvent.TOUCH_UP) {
 
 				if (inBounds(event, 0, 415, 65, 65)) {
@@ -210,20 +220,22 @@ public class GameScreen extends Screen {
 					pause();
 
 				}
-
-				for (int j = 0; j < tilearray.size(); j++) {
-					if (inBounds(event, tilearray.get(j).getTileX(), tilearray
-							.get(j).getTileY(),
-							tilearray.get(j).getTileWidth(), tilearray.get(j)
-									.getTileHeight())) {
-						tilearray.get(j).setTileDisplay(false);
+				
+				/*for (int j = 0; j < worldTileMap.getTileArray().size(); j++) {
+				if (inBounds(event, worldTileMap.getTileArray().get(j).getTileX(), worldTileMap.getTileArray()
+						.get(j).getTileY(),
+						worldTileMap.getTileArray().get(j).getTileWidth(), worldTileMap.getTileArray().get(j)
+								.getTileHeight())) {
+					worldTileMap.getTileArray().get(j).setTileDisplay(false);
 					}
-				}
+				}*/
 
 				/*
 				 * if (event.x > 400) { // Move right. robot.stopRight(); }
 				 */
 			}
+			
+			
 
 		}
 
@@ -252,7 +264,8 @@ public class GameScreen extends Screen {
 				projectiles.remove(i);
 			}
 		}
-
+		
+		worldTileMap.update();
 		updateTiles();
 		hb.update();
 		hb2.update();
@@ -308,13 +321,9 @@ public class GameScreen extends Screen {
 		}
 
 	}
-
+	
 	private void updateTiles() {
 
-		for (int i = 0; i < tilearray.size(); i++) {
-			Tile t = (Tile) tilearray.get(i);
-			t.update();
-		}
 
 	}
 
@@ -324,7 +333,7 @@ public class GameScreen extends Screen {
 
 		g.drawImage(Assets.background, bg1.getBgX(), bg1.getBgY());
 		g.drawImage(Assets.background, bg2.getBgX(), bg2.getBgY());
-		paintTiles(g);
+		worldTileMap.paintTiles(g);
 
 		ArrayList<?> projectiles = robot.getProjectiles();
 		for (int i = 0; i < projectiles.size(); i++) {
@@ -354,17 +363,6 @@ public class GameScreen extends Screen {
 		if (state == GameState.GameOver)
 			drawGameOverUI();
 
-	}
-
-	private void paintTiles(Graphics g) {
-		for (int i = 0; i < tilearray.size(); i++) {
-			Tile t = (Tile) tilearray.get(i);
-			if (t.getTileDisplay()) {
-			g.drawImage(Assets.tileSet, t.getTileX(), t.getTileY(),
-					t.getTileSrcX(), t.getTileSrcY(), t.getTileWidth(), t.getTileHeight());
-			}
-		}
-		// g.drawImage(Assets.tileSet, 0, 0);
 	}
 
 	public void animate() {
@@ -408,11 +406,11 @@ public class GameScreen extends Screen {
 	}
 
 	private void drawRunningUI() {
-		Graphics g = game.getGraphics();
+		/*Graphics g = game.getGraphics();
 		g.drawImage(Assets.button, 0, 285, 0, 0, 65, 65);
 		g.drawImage(Assets.button, 0, 350, 0, 65, 65, 65);
 		g.drawImage(Assets.button, 0, 415, 0, 130, 65, 65);
-		g.drawImage(Assets.button, 0, 0, 0, 195, 35, 35);
+		g.drawImage(Assets.button, 0, 0, 0, 195, 35, 35);*/
 
 	}
 

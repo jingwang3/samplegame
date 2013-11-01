@@ -17,7 +17,7 @@ public class Tile {
 	private int tileWidth, tileHeight;
 	private int tileImgSrcX, tileImgSrcY;
 	private boolean display = true;
-	public int tileID;
+	private int xIndexOnMap, yIndexOnMap, indexOnTileSet;
 	public Image tileImage;
 
 	private Robot robot = GameScreen.getRobot();
@@ -28,12 +28,14 @@ public class Tile {
 	public Tile(int x, int y, int tId, int tWidth, int tHeight) {
 		tileWidth = tWidth;
 		tileHeight = tHeight;
+		xIndexOnMap = x;
+		yIndexOnMap = y;
 		tileX = x * tileWidth;
 		tileY = y * tileHeight;
 
-		tileID = tId;
-		tileImgSrcX = (tileID - 1) % 8 * tileWidth;
-		tileImgSrcY = (tileID - 1) / 8 * tileHeight;
+		indexOnTileSet = tId;
+		tileImgSrcX = (indexOnTileSet - 1) % 8 * tileWidth;
+		tileImgSrcY = (indexOnTileSet - 1) / 8 * tileHeight;
 
 		r = new Rect();
 
@@ -43,7 +45,7 @@ public class Tile {
 		speedX = bg.getSpeedX() * 5;
 		tileX += speedX;
 		r.set(tileX, tileY, tileX + tileWidth, tileY + tileHeight);
-		if (Rect.intersects(r, Robot.yellowRed) && tileID != 0) {
+		if (Rect.intersects(r, Robot.yellowRed) && indexOnTileSet != 0) {
 			checkVerticalCollision(Robot.rect, Robot.rect2);
 			checkSideCollision(Robot.rect3, Robot.rect4, Robot.footleft,
 					Robot.footright);
@@ -57,7 +59,7 @@ public class Tile {
 	public void setTileX(int tileX) {
 		this.tileX = tileX;
 	}
-
+	
 	public int getTileY() {
 		return tileY;
 	}
@@ -73,7 +75,12 @@ public class Tile {
 	public int getTileSrcY() {
 		return tileImgSrcY;
 	}
-
+	public int getTileIdX(){
+		return xIndexOnMap;
+	}
+	public int getTileIdY(){
+		return yIndexOnMap;
+	}
 	public Image getTileImage() {
 		return tileImage;
 	}
@@ -95,7 +102,7 @@ public class Tile {
 
 		}
 
-		if (Rect.intersects(rbot, r) && tileID == 8) {
+		if (Rect.intersects(rbot, r) && indexOnTileSet == 8) {
 			robot.setJumped(false);
 			robot.setSpeedY(0);
 			robot.setCenterY(tileY - 63);
@@ -104,7 +111,7 @@ public class Tile {
 
 	public void checkSideCollision(Rect rleft, Rect rright, Rect leftfoot,
 			Rect rightfoot) {
-		if (tileID != 5 && tileID != 2 && tileID != 0) {
+		if (indexOnTileSet != 5 && indexOnTileSet != 2 && indexOnTileSet != 0) {
 			if (Rect.intersects(rleft, r)) {
 				robot.setCenterX(tileX + 102);
 

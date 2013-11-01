@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 
 import com.jing.androidgame.R;
 import com.jing.framework.Screen;
@@ -30,7 +33,13 @@ public class SampleGame extends AndroidGame {
 			Assets.load(this);
 			firstTimeCreate = false;
 		}
-
+		
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		int width = size.x;
+		int height = size.y;
+        System.out.println("jing says: " + width);
 		InputStream is = getResources().openRawResource(R.raw.world);
 		map = convertStreamToString(is);
 		return new SplashLoadingScreen(this);
